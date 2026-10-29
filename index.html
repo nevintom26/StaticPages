@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANTIGRAVITY • Quota Exhaustion & Performance Monitor</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              glow: '#00f2fe'
+            },
+            cyber: {
+              base: '#070b13',
+              surface: '#0f172a',
+              card: '#131e36',
+              border: '#1e293b',
+              subtle: '#2a3b5c'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      background-color: #060910;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glow-cyan {
+      box-shadow: 0 0 20px -2px rgba(6, 182, 212, 0.25);
+    }
+    .glow-red {
+      box-shadow: 0 0 25px -3px rgba(244, 63, 94, 0.28);
+    }
+    .glow-amber {
+      box-shadow: 0 0 20px -2px rgba(245, 158, 11, 0.25);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070b13;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#060910] text-slate-100 flex flex-col antialiased selection:bg-brand-500 selection:text-black">
+
+  <!-- Header / Executive Navigation Bar -->
+  <header class="border-b border-cyber-border bg-[#0b1120]/80 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-teal-400 to-emerald-400 p-[1px] flex items-center justify-center glow-cyan shadow-lg">
+        <div class="w-full h-full bg-[#090d18] rounded-[11px] flex items-center justify-center">
+          <i class="ph-bold ph-gauge text-cyan-400 text-xl"></i>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
+            ANTIGRAVITY • QUOTA EXHAUSTION & PERFORMANCE MONITOR
+          </h1>
+          <span class="text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20 hidden sm:inline">
+            Executive Suite
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 font-mono flex items-center gap-2">
+          <span>Enterprise Capacity Telemetry</span>
+          <span class="text-slate-600">•</span>
+          <span class="text-amber-400 font-medium flex items-center gap-1">
+            <i class="ph-bold ph-shield-warning text-xs"></i> CIO Advisory Active
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Action Buttons -->
+    <div class="flex items-center gap-2.5">
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyber-card border border-cyber-border text-xs text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+        <span class="font-mono text-slate-400">QUOTA RISK:</span>
+        <span class="font-bold text-rose-400">HIGH EXHAUSTION</span>
+      </div>
+
+      <button id="exportCsvBtn" title="Export as CSV" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-lg bg-cyber-card border border-cyber-border hover:border-slate-500 text-slate-300 hover:text-white transition">
+        <i class="ph ph-file-csv text-base text-cyan-400"></i>
+        <span>CSV Export</span>
+      </button>
+
+      <button id="openModalBtn" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-brand-500 to-cyan-500 text-slate-950 hover:brightness-110 shadow-md shadow-cyan-500/20 transition active:scale-95">
+        <i class="ph-bold ph-plus-circle text-sm"></i>
+        <span>Log Exhaustion</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Executive Warning & Governance Directives (Top Callout) -->
+  <section class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      
+      <!-- DIRECTIVE 1: CIO Policy Alert -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-rose-950/25 border border-rose-500/40 glow-red relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute -right-6 -bottom-6 text-rose-500/10 pointer-events-none">
+          <i class="ph-fill ph-shield-warning text-9xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 mb-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40">
+              MANDATORY GOVERNANCE DIRECTIVE
+            </span>
+            <span class="text-xs text-rose-300/80 font-mono font-semibold">CIO Security Bulletin</span>
+          </div>
+          <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-fill ph-prohibit text-rose-400 text-lg"></i>
+            Personal Jio Account Usage Is Strictly Not Advisable / Prohibited
+          </h2>
+          <p class="mt-2 text-xs text-slate-300 leading-relaxed">
+            As emphasized by the <span class="text-rose-300 font-semibold">CIO</span>, using personal accounts (e.g. personal Jio accounts) for corporate tasks introduces catastrophic compliance exposure. 
+            <strong class="text-white">Enterprise data residency, NDA confidentiality, and zero-retention policies cannot be guaranteed.</strong> 
+            Personal plans may permit LLM provider telemetry and model retraining on proprietary source code, violating client agreements and IP governance.
+          </p>
+        </div>
+        <div class="mt-3.5 pt-3 border-t border-rose-500/20 flex items-center justify-between text-[11px] font-mono">
+          <span class="text-rose-400 flex items-center gap-1.5 font-semibold">
+            <i class="ph-bold ph-lock-key"></i> Policy: Zero Unmanaged LLM Accounts
+          </span>
+          <span class="text-slate-400">Status: Non-Compliant Tier Isolated</span>
+        </div>
+      </div>
+
+      <!-- DIRECTIVE 2: Code Review (CR) vs Green-field Consumption -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-amber-950/20 border border-amber-500/40 glow-amber relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute -right-6 -bottom-6 text-amber-500/10 pointer-events-none">
+          <i class="ph-fill ph-git-pull-request text-9xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 mb-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              TOKEN CONSUMPTION DYNAMICS
+            </span>
+            <span class="text-xs text-amber-300/80 font-mono font-semibold">Architecture Assessment</span>
+          </div>
+          <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-fill ph-chart-line-up text-amber-400 text-lg"></i>
+            Code Review (CR) Multiplies Quota Consumption vs. Green-field
+          </h2>
+          <p class="mt-2 text-xs text-slate-300 leading-relaxed">
+            Token burn velocity peaks drastically during <span class="text-amber-300 font-semibold">Code Review (CR) & multi-file refactoring</span> compared to creating a fresh feature or blank class. 
+            In CR, the engine must perform an exhaustive <strong class="text-white">codebase walkthrough</strong>, loading entire context trees, AST references, and git diffs before producing evaluation output.
+          </p>
+        </div>
+        <div class="mt-3.5 pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] font-mono">
+          <span class="text-amber-300 flex items-center gap-1.5 font-semibold">
+            <i class="ph-bold ph-fire"></i> Estimated CR Multiplier: 3.2× to 5.4× Input Tokens
+          </span>
+          <span class="text-slate-400">Directly drives rapid quota burnout</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DIRECTIVE 3: Benchmark Variance & Influencing Factors Banner -->
+    <div class="p-4 rounded-xl bg-cyber-surface border border-cyber-border flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+      <div class="flex items-start gap-3">
+        <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 mt-0.5 flex-shrink-0">
+          <i class="ph-bold ph-sliders text-base"></i>
+        </div>
+        <div>
+          <span class="font-bold text-white uppercase font-mono tracking-wide">Variance Baseline Disclosure:</span>
+          <p class="text-slate-300 mt-0.5 leading-relaxed">
+            All durations (30m, 60m, 180m) and burn rates represent <strong class="text-cyan-300">empirical averages under heavy workload conditions</strong>. Actual real-world quota life fluctuates dramatically based on:
+            <span class="text-slate-100 font-medium">Task Complexity</span>, 
+            <span class="text-slate-100 font-medium">Prompt Engineering Quality (brevity vs redundancy)</span>, 
+            <span class="text-slate-100 font-medium">Repository Context Depth</span>, and 
+            <span class="text-slate-100 font-medium">Selected Model Parameters (Reasoning vs Base generation)</span>.
+          </p>
+        </div>
+      </div>
+      <button onclick="scrollToSimulator()" class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-cyber-card border border-cyber-border hover:border-cyan-400 text-cyan-300 font-mono text-[11px] transition flex items-center gap-1.5 whitespace-nowrap">
+        <i class="ph-bold ph-cube"></i> Open Quota Simulator
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Content Dashboard -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+    <!-- KPI Metrics Strip -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- Monitored Accounts -->
+      <div class="p-4 rounded-2xl bg-cyber-surface border border-cyber-border/80 flex flex-col justify-between hover:border-slate-700 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+          <span>MONITORED TIERS</span>
+          <i class="ph-duotone ph-buildings text-base text-cyan-400"></i>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold font-mono tracking-tight text-white" id="kpiAccounts">3</span>
+          <span class="text-xs text-slate-400">Configurations</span>
+        </div>
+        <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+          <span>1 Free • 1 Shared • 1 Jio</span>
+        </div>
+      </div>
+
+      <!-- Outage / Lockout Status -->
+      <div class="p-4 rounded-2xl bg-cyber-surface border border-cyber-border/80 flex flex-col justify-between hover:border-slate-700 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+          <span>LOCKOUT SEVERITY</span>
+          <i class="ph-duotone ph-warning-diamond text-base text-rose-400"></i>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold font-mono tracking-tight text-rose-400" id="kpiExhausted">100%</span>
+          <span class="text-xs text-rose-400/80 font-mono">All Exhausted</span>
+        </div>
+        <div class="mt-2 text-[11px] text-rose-400/80 font-medium">
+          Multi-day freezes on 2 of 3 seats
+        </div>
+      </div>
+
+      <!-- CR vs Greenfield Consumption Ratio -->
+      <div class="p-4 rounded-2xl bg-cyber-surface border border-cyber-border/80 flex flex-col justify-between hover:border-slate-700 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+          <span>CR TOKEN SURGE</span>
+          <i class="ph-duotone ph-arrows-out-line-horizontal text-base text-amber-400"></i>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold font-mono tracking-tight text-amber-300">~4.1×</span>
+          <span class="text-xs text-slate-400">Multiplier</span>
+        </div>
+        <div class="mt-2 text-[11px] text-amber-400/80">
+          Walkthrough overhead per session
+        </div>
+      </div>
+
+      <!-- Fastest Recovery Anchor -->
+      <div class="p-4 rounded-2xl bg-cyber-surface border border-cyber-border/80 flex flex-col justify-between hover:border-slate-700 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+          <span>EARLIEST REPLENISH</span>
+          <i class="ph-duotone ph-hourglass-simple-high text-base text-emerald-400"></i>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold font-mono tracking-tight text-emerald-400">3–5 hrs</span>
+        </div>
+        <div class="mt-2 text-[11px] text-rose-400/90 font-mono">
+          ⚠️ Jio Plan (Non-Compliant)
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Visual Comparison: Code Review (CR) vs Green-field Creation -->
+    <section class="bg-cyber-surface rounded-2xl border border-cyber-border p-5 sm:p-6 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-cyber-border pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+              <i class="ph-bold ph-git-diff text-lg"></i>
+            </span>
+            <h3 class="text-base font-bold text-white tracking-wide">
+              Token Consumption Differential: Code Review (CR) vs. Green-field Feature
+            </h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Analyzing why quotas burn out 3× to 5× quicker during codebase walkthroughs and pull request assessments.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-mono">
+          <span class="px-2 py-1 rounded bg-cyber-card border border-cyber-border text-slate-300">Baseline Prompt: 1k output tokens</span>
+        </div>
+      </div>
+
+      <!-- Comparative Diagram -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Scenario A: Green-field -->
+        <div class="p-4 rounded-xl bg-cyber-card/60 border border-cyber-border space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-cyan-300 flex items-center gap-1.5">
+              <i class="ph-bold ph-file-plus"></i> Green-field Feature / Class Creation
+            </span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Lean Overhead</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Prompts specify architecture from scratch. No legacy context or dependency graph traversing required.
+          </p>
+          
+          <!-- Stacked token breakdown bar -->
+          <div class="space-y-1 pt-2">
+            <div class="flex justify-between text-[11px] font-mono text-slate-400">
+              <span>Avg Token Payload: ~3,200 tokens</span>
+              <span>Burn Impact: Low</span>
+            </div>
+            <div class="h-4 rounded-full bg-cyber-base border border-cyber-border overflow-hidden flex">
+              <div class="bg-cyan-600 h-full w-[25%]" title="Instructions (800t)"></div>
+              <div class="bg-teal-500 h-full w-[35%]" title="Mock Interfaces (1,100t)"></div>
+              <div class="bg-emerald-400 h-full w-[40%]" title="Generated Code Output (1,300t)"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-mono text-slate-500 pt-1">
+              <span>[25%] Prompt</span>
+              <span>[35%] Interfaces</span>
+              <span>[40%] Output Synthesis</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-300 bg-cyber-surface p-2.5 rounded-lg border border-cyber-border font-mono">
+            <strong>Result:</strong> Free tier sustains ~90 to 120 minutes of continuous iterative prompt generation.
+          </div>
+        </div>
+
+        <!-- Scenario B: Code Review (CR) -->
+        <div class="p-4 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-amber-300 flex items-center gap-1.5">
+              <i class="ph-bold ph-code text-amber-400"></i> Code Review (CR) & Repository Walkthrough
+            </span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30">Heavy Ingestion</span>
+          </div>
+          <p class="text-xs text-slate-300">
+            Engine must parse existing files, git diffs, cross-file imports, and AST hierarchies before evaluation.
+          </p>
+          
+          <!-- Stacked token breakdown bar -->
+          <div class="space-y-1 pt-2">
+            <div class="flex justify-between text-[11px] font-mono text-slate-400">
+              <span>Avg Token Payload: ~16,800 tokens (5.25×)</span>
+              <span class="text-rose-400 font-bold">Burn Impact: Extreme</span>
+            </div>
+            <div class="h-4 rounded-full bg-cyber-base border border-cyber-border overflow-hidden flex">
+              <div class="bg-rose-500 h-full w-[55%]" title="Repository & Dependency Context (9,200t)"></div>
+              <div class="bg-amber-500 h-full w-[25%]" title="Git Diff & PR Changes (4,200t)"></div>
+              <div class="bg-cyan-400 h-full w-[20%]" title="Review Comments & Suggestions (3,400t)"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-mono text-slate-400 pt-1">
+              <span class="text-rose-400 font-semibold">[55%] Codebase Context</span>
+              <span class="text-amber-400">[25%] Diff Walkthrough</span>
+              <span class="text-cyan-400">[20%] Review Evaluation</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-rose-300/90 bg-rose-950/30 p-2.5 rounded-lg border border-rose-500/30 font-mono">
+            <strong>Exhaustion Consequence:</strong> Free tier burns out in only <span class="font-bold underline text-white">30 minutes</span>; Company Pro exhausts in <span class="font-bold underline text-white">60 minutes</span>.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Account Quota Exhaustion & Performance Cards -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+            <i class="ph-bold ph-cards text-cyan-400"></i>
+            Account Quota & Governance Telemetry
+          </h3>
+          <p class="text-xs text-slate-400">Monitored account profiles, empirical burnout timelines, and security posture.</p>
+        </div>
+        <div class="text-xs font-mono text-slate-400">
+          Averages calculated under <span class="text-amber-400 font-semibold">Heavy CR Workloads</span>
+        </div>
+      </div>
+
+      <!-- Account Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="accountsCardsGrid">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Quota Simulator: Real-world Variance Adjuster -->
+    <section id="simulatorSection" class="bg-cyber-surface rounded-2xl border border-cyber-border p-5 sm:p-6 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyber-border pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <i class="ph-bold ph-sliders-horizontal text-lg"></i>
+            </span>
+            <h3 class="text-base font-bold text-white tracking-wide">
+              Real-World Quota Depletion Simulator (Variance Engine)
+            </h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Dynamically adjust influencing parameters (Task Complexity, Prompt Quality, Repo Depth, Model Choice) to model quota longevity.
+          </p>
+        </div>
+        <span class="px-2.5 py-1 rounded bg-cyber-card border border-cyber-border text-emerald-400 text-xs font-mono font-medium">
+          Interactive Formula Model
+        </span>
+      </div>
+
+      <!-- Simulator Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Factor 1: Task Type / Complexity -->
+        <div class="space-y-2 p-3.5 rounded-xl bg-cyber-card border border-cyber-border">
+          <label class="block text-xs font-mono text-slate-300 font-semibold flex items-center justify-between">
+            <span>1. Task Complexity</span>
+            <i class="ph ph-brackets-curly text-cyan-400"></i>
+          </label>
+          <select id="simComplexity" class="w-full px-2.5 py-2 text-xs rounded-lg bg-cyber-base border border-cyber-border text-slate-200 focus:outline-none focus:border-cyan-400">
+            <option value="1.8" selected>Code Review (CR) / Refactor (High)</option>
+            <option value="1.0">New Feature Creation (Baseline)</option>
+            <option value="0.5">Isolated Snippet / Unit Test (Low)</option>
+          </select>
+          <p class="text-[10px] text-slate-500">CR incurs extensive context walkthroughs.</p>
+        </div>
+
+        <!-- Factor 2: Prompt Quality -->
+        <div class="space-y-2 p-3.5 rounded-xl bg-cyber-card border border-cyber-border">
+          <label class="block text-xs font-mono text-slate-300 font-semibold flex items-center justify-between">
+            <span>2. Prompt Engineering</span>
+            <i class="ph ph-chat-teardrop-text text-amber-400"></i>
+          </label>
+          <select id="simPrompt" class="w-full px-2.5 py-2 text-xs rounded-lg bg-cyber-base border border-cyber-border text-slate-200 focus:outline-none focus:border-cyan-400">
+            <option value="1.5" selected>Conversational / Redundant History (Heavy)</option>
+            <option value="1.0">Structured / Clear Directives (Moderate)</option>
+            <option value="0.7">Optimized & Zero-Redundancy (Lean)</option>
+          </select>
+          <p class="text-[10px] text-slate-500">Unpruned chats multiply prior tokens repeatedly.</p>
+        </div>
+
+        <!-- Factor 3: Repo Depth & Context Size -->
+        <div class="space-y-2 p-3.5 rounded-xl bg-cyber-card border border-cyber-border">
+          <label class="block text-xs font-mono text-slate-300 font-semibold flex items-center justify-between">
+            <span>3. Repository Depth</span>
+            <i class="ph ph-tree-structure text-brand-400"></i>
+          </label>
+          <select id="simDepth" class="w-full px-2.5 py-2 text-xs rounded-lg bg-cyber-base border border-cyber-border text-slate-200 focus:outline-none focus:border-cyan-400">
+            <option value="1.6" selected>Monorepo / Multi-Module AST (Heavy)</option>
+            <option value="1.0">Standard App Service (Medium)</option>
+            <option value="0.6">Single File / Isolated Script (Small)</option>
+          </select>
+          <p class="text-[10px] text-slate-500">Monorepos inject massive context frames.</p>
+        </div>
+
+        <!-- Factor 4: Model Choice -->
+        <div class="space-y-2 p-3.5 rounded-xl bg-cyber-card border border-cyber-border">
+          <label class="block text-xs font-mono text-slate-300 font-semibold flex items-center justify-between">
+            <span>4. Model Architecture</span>
+            <i class="ph ph-cpu text-rose-400"></i>
+          </label>
+          <select id="simModel" class="w-full px-2.5 py-2 text-xs rounded-lg bg-cyber-base border border-cyber-border text-slate-200 focus:outline-none focus:border-cyan-400">
+            <option value="1.4" selected>High-Parameter Deep Reasoning Model</option>
+            <option value="1.0">Standard Enterprise Code Generation</option>
+            <option value="0.65">Fast Turbo / Flash Code Model</option>
+          </select>
+          <p class="text-[10px] text-slate-500">Reasoning models multiply internal chain tokens.</p>
+        </div>
+      </div>
+
+      <!-- Simulation Output Cards -->
+      <div class="p-4 sm:p-5 rounded-xl bg-[#090e1a] border border-cyber-border/80 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono uppercase text-slate-400">Simulated Composite Consumption Multiplier:</span>
+            <span id="compositeMultiplierLabel" class="text-sm font-mono font-bold text-amber-300">4.03× Baseline</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Predicted duration until full quota lockout based on current parameter calibration:
+          </p>
+        </div>
+
+        <!-- Simulated Results Display -->
+        <div class="grid grid-cols-3 gap-3 w-full md:w-auto">
+          <div class="px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-border text-center">
+            <span class="text-[10px] font-mono text-slate-400 block">FREE TIER</span>
+            <span class="text-base font-bold font-mono text-rose-400" id="simResultFree">~22m</span>
+          </div>
+          <div class="px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-border text-center">
+            <span class="text-[10px] font-mono text-slate-400 block">COMPANY PRO</span>
+            <span class="text-base font-bold font-mono text-amber-300" id="simResultCompany">~45m</span>
+          </div>
+          <div class="px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-border text-center">
+            <span class="text-[10px] font-mono text-slate-400 block">TIER 3 (JIO)</span>
+            <span class="text-base font-bold font-mono text-cyan-300" id="simResultJio">~134m</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comprehensive Log Table Section -->
+    <section class="bg-cyber-surface rounded-2xl border border-cyber-border overflow-hidden">
+      <!-- Table Header & Controls -->
+      <div class="p-4 sm:p-5 border-b border-cyber-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-table text-cyan-400"></i>
+            Telemetry Log & Exhaustion Registry
+          </h3>
+          <p class="text-xs text-slate-400">Audit trail of recorded exhaustion runs, governance clearances, and replenishment timers.</p>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Search box -->
+          <div class="relative">
+            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+            <input type="text" id="searchInput" placeholder="Search accounts, notes..." class="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-cyber-card border border-cyber-border text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition w-44 sm:w-56">
+          </div>
+
+          <!-- Tier Filter -->
+          <select id="tierFilter" class="px-2.5 py-1.5 text-xs rounded-lg bg-cyber-card border border-cyber-border text-slate-300 focus:outline-none focus:border-brand-500">
+            <option value="ALL">All Tiers</option>
+            <option value="Free">Free</option>
+            <option value="Company Pro">Company Pro</option>
+            <option value="Pro (Jio)">Pro (Jio)</option>
+          </select>
+
+          <!-- Governance Filter -->
+          <select id="govFilter" class="px-2.5 py-1.5 text-xs rounded-lg bg-cyber-card border border-cyber-border text-slate-300 focus:outline-none focus:border-brand-500">
+            <option value="ALL">All Governance Postures</option>
+            <option value="Approved">Approved (Enterprise)</option>
+            <option value="Prohibited">Prohibited (CIO Directive)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Responsive Table Container -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-cyber-card/70 text-slate-400 uppercase font-mono tracking-wider border-b border-cyber-border select-none">
+            <tr>
+              <th scope="col" class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortTable('name')">
+                Account ID / Name <i class="ph ph-arrows-down-up text-[11px] inline ml-1"></i>
+              </th>
+              <th scope="col" class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortTable('tier')">
+                Tier <i class="ph ph-arrows-down-up text-[11px] inline ml-1"></i>
+              </th>
+              <th scope="col" class="py-3 px-4">Workload Focus</th>
+              <th scope="col" class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortTable('duration')">
+                Duration <i class="ph ph-arrows-down-up text-[11px] inline ml-1"></i>
+              </th>
+              <th scope="col" class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortTable('burnRate')">
+                Burn Rate <i class="ph ph-arrows-down-up text-[11px] inline ml-1"></i>
+              </th>
+              <th scope="col" class="py-3 px-4">Status</th>
+              <th scope="col" class="py-3 px-4">Replenishment</th>
+              <th scope="col" class="py-3 px-4">CIO Governance Policy</th>
+              <th scope="col" class="py-3 px-4">Notes & Workload Details</th>
+              <th scope="col" class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-cyber-border/60 text-slate-300">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table footer -->
+      <div class="p-3 bg-cyber-card/40 border-t border-cyber-border text-xs text-slate-500 flex justify-between items-center px-4 font-mono">
+        <span id="filteredCountLabel">Showing 3 of 3 records</span>
+        <span class="text-slate-500">Burn Formula: 100% / Duration (mins)</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Log Exhaustion Entry -->
+  <div id="sessionModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-cyber-surface border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+      <div class="flex items-center justify-between pb-4 border-b border-cyber-border">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-lg bg-cyan-500/20 text-cyan-400">
+            <i class="ph-bold ph-plus-circle text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-semibold text-white">Log Quota Exhaustion Event</h3>
+            <p class="text-xs text-slate-400">Record session metrics and enforce enterprise governance tagging.</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="text-slate-400 hover:text-white text-lg p-1 rounded-lg hover:bg-cyber-card transition">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <form id="newSessionForm" class="mt-4 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Account Name -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Account Identifier *</label>
+            <input type="text" id="modalAccountName" required placeholder="e.g. Sandbox Free 02" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <!-- Account Tier -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Tier / License *</label>
+            <select id="modalTier" required class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+              <option value="Free">Free</option>
+              <option value="Company Pro">Company Pro (shared)</option>
+              <option value="Pro (Jio)">Pro (Jio) [Prohibited]</option>
+              <option value="Custom Enterprise">Custom Enterprise</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Duration in minutes -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Duration (Mins) *</label>
+            <input type="number" id="modalDuration" min="1" required placeholder="e.g. 45" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <!-- Workload Focus -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Workload Focus *</label>
+            <select id="modalWorkloadType" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+              <option value="Code Review (CR)">Code Review (CR) - Heavy</option>
+              <option value="Green-field Creation">Green-field Creation - Lean</option>
+              <option value="Mixed Refactor">Mixed Refactor / Testing</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Status *</label>
+            <select id="modalStatus" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+              <option value="Exhausted">Exhausted</option>
+              <option value="Active">Active / Cooling</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Time Interval -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Time Interval (Optional)</label>
+            <input type="text" id="modalTimeRange" placeholder="e.g., 09:00 AM - 09:45 AM" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <!-- Replenishment Reset Time -->
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Replenishment Cycle *</label>
+            <input type="text" id="modalResetTime" required placeholder="e.g. 3 to 5 hours or 4 to 5 days" class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <!-- Notes / Workload Details -->
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Workload Details & Variance Factors</label>
+          <textarea id="modalNotes" rows="2" placeholder="e.g., Deep monorepo CR walkthrough, high prompt redundancy..." class="w-full px-3 py-2 text-xs rounded-lg bg-cyber-card border border-cyber-border text-white focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="p-3 rounded-lg bg-cyber-card/60 border border-cyber-border text-xs flex items-center justify-between font-mono">
+          <span class="text-slate-400">Estimated Burn Velocity:</span>
+          <span id="modalBurnPreview" class="text-cyan-400 font-semibold">— % / min</span>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-2 flex justify-end gap-2.5">
+          <button type="button" id="cancelModalBtn" class="px-4 py-2 text-xs font-medium rounded-lg bg-cyber-card border border-cyber-border text-slate-300 hover:text-white transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold rounded-lg bg-brand-500 hover:bg-brand-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+            <i class="ph-bold ph-check"></i>
+            Commit Entry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-2.5 rounded-xl bg-cyber-surface border border-cyan-500/40 text-slate-100 text-xs shadow-2xl flex items-center gap-2">
+    <i class="ph-fill ph-check-circle text-emerald-400 text-base"></i>
+    <span id="toastMsg">Action completed successfully</span>
+  </div>
+
+  <!-- JavaScript Telemetry Logic -->
+  <script>
+    // Primary empirical monitor data
+    let monitorData = [
+      {
+        id: 'acc_free',
+        name: 'Free',
+        tier: 'Free',
+        sessionStart: '09:00 AM',
+        exhaustionTime: '09:30 AM',
+        durationMins: 30,
+        workloadType: 'Code Review (CR)',
+        intensity: 'Heavy',
+        burnRate: 3.33,
+        status: 'Exhausted',
+        replenishment: '4 to 5 days',
+        governance: 'Approved (Sandbox Only)',
+        isProhibited: false,
+        notes: 'High token consumption in CR due to full codebase walkthrough and AST ingestion.'
+      },
+      {
+        id: 'acc_pro_shared',
+        name: 'Company Pro (shared)',
+        tier: 'Company Pro',
+        sessionStart: '10:00 AM',
+        exhaustionTime: '11:00 AM',
+        durationMins: 60,
+        workloadType: 'Code Review (CR)',
+        intensity: 'Heavy',
+        burnRate: 1.67,
+        status: 'Exhausted',
+        replenishment: '4 to 5 days',
+        governance: 'Approved (Enterprise Contract)',
+        isProhibited: false,
+        notes: 'Multi-seat concurrent automated refactoring & branch walkthroughs.'
+      },
+      {
+        id: 'acc_jio',
+        name: 'Tier 3',
+        tier: 'Pro (Jio)',
+        sessionStart: '01:00 PM',
+        exhaustionTime: '04:00 PM',
+        durationMins: 180,
+        workloadType: 'Context-Heavy Code Walkthrough',
+        intensity: 'Heavy',
+        burnRate: 0.56,
+        status: 'Exhausted',
+        replenishment: '3 to 5 hours',
+        governance: 'PROHIBITED (CIO Policy)',
+        isProhibited: true,
+        notes: 'Personal account strictly disallowed by CIO: Data retention/compliance cannot be ensured.'
+      }
+    ];
+
+    let currentSort = { column: 'duration', asc: true };
+
+    function calculateBurnRate(duration) {
+      if (!duration || duration <= 0) return 0;
+      return Number((100 / duration).toFixed(2));
+    }
+
+    // Custom non-blocking toast
+    function notify(message, isAlert = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = message;
+      
+      const icon = toast.querySelector('i');
+      if (isAlert) {
+        icon.className = 'ph-fill ph-warning text-rose-400 text-base';
+        toast.className = toast.className.replace('border-cyan-500/40', 'border-rose-500/40');
+      } else {
+        icon.className = 'ph-fill ph-check-circle text-emerald-400 text-base';
+        toast.className = toast.className.replace('border-rose-500/40', 'border-cyan-500/40');
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    // Render Account Cards
+    function renderCards() {
+      const container = document.getElementById('accountsCardsGrid');
+      container.innerHTML = '';
+
+      monitorData.forEach(item => {
+        const card = document.createElement('div');
+        
+        // Visual theme based on CIO governance status
+        const isProhibited = item.isProhibited;
+        let cardBorder = isProhibited ? 'border-rose-500/50 hover:border-rose-400' : 'border-cyber-border hover:border-cyan-500/50';
+        let badgeStyle = isProhibited 
+          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' 
+          : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        
+        card.className = `p-5 rounded-2xl bg-cyber-surface border ${cardBorder} transition duration-200 flex flex-col justify-between relative overflow-hidden group shadow-lg`;
+
+        card.innerHTML = `
+          <!-- Top alert banner if prohibited -->
+          ${isProhibited ? `
+            <div class="bg-rose-600/90 text-white text-[10px] font-mono uppercase tracking-widest px-3 py-1 font-bold flex items-center justify-between -mx-5 -mt-5 mb-4 border-b border-rose-400">
+              <span class="flex items-center gap-1.5"><i class="ph-bold ph-prohibit"></i> CIO Directive Violation</span>
+              <span>Non-Compliant</span>
+            </div>
+          ` : `
+            <div class="h-1 bg-gradient-to-r from-cyan-500 to-teal-400 -mx-5 -mt-5 mb-4"></div>
+          `}
+
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">${item.tier}</span>
+                <h4 class="text-base font-bold text-white group-hover:text-cyan-300 transition">${item.name}</h4>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono border ${item.status === 'Exhausted' ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'} flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full ${item.status === 'Exhausted' ? 'bg-rose-400 animate-pulse' : 'bg-emerald-400'}"></span>
+                ${item.status}
+              </span>
+            </div>
+
+            <!-- Exhaustion & Velocity -->
+            <div class="grid grid-cols-2 gap-2 my-3 p-3 rounded-xl bg-cyber-card border border-cyber-border font-mono">
+              <div>
+                <span class="text-slate-400 text-[10px] block">DURATION</span>
+                <span class="text-white font-bold text-base">${item.durationMins}m</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[10px] block">BURN VELOCITY</span>
+                <span class="text-amber-300 font-bold text-base">~${item.burnRate}%<span class="text-[10px] font-normal text-slate-400">/m</span></span>
+              </div>
+            </div>
+
+            <!-- Metadata Specs -->
+            <div class="space-y-2 text-xs font-sans">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Workload Focus:</span>
+                <span class="font-mono text-cyan-300 text-[11px] font-medium">${item.workloadType}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Replenishment:</span>
+                <span class="font-mono text-xs ${item.replenishment.includes('hour') ? 'text-emerald-400 font-bold' : 'text-slate-300'}">
+                  <i class="ph ph-hourglass-high mr-1 inline"></i>${item.replenishment}
+                </span>
+              </div>
+              <div class="pt-1.5 flex items-center justify-between border-t border-cyber-border/70">
+                <span class="text-slate-400">Governance:</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${badgeStyle}">
+                  ${item.governance}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-3 p-2.5 rounded-lg bg-cyber-card/70 border border-cyber-border/80 text-[11px] text-slate-300 leading-relaxed italic">
+              "${item.notes}"
+            </div>
+          </div>
+
+          <!-- Bottom Action -->
+          <div class="mt-4 pt-3 flex items-center justify-between border-t border-cyber-border text-xs">
+            <span class="text-[10px] font-mono text-slate-500">Interval: ${item.sessionStart ? `${item.sessionStart} - ${item.exhaustionTime}` : 'Telemetry Run'}</span>
+            <button onclick="deleteAccount('${item.id}')" class="text-slate-500 hover:text-rose-400 transition" title="Delete record">
+              <i class="ph-bold ph-trash text-sm"></i>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Render Table View
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const tierFilter = document.getElementById('tierFilter').value;
+      const govFilter = document.getElementById('govFilter').value;
+
+      tbody.innerHTML = '';
+
+      let filtered = monitorData.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                              item.tier.toLowerCase().includes(searchTerm) || 
+                              item.notes.toLowerCase().includes(searchTerm) ||
+                              item.workloadType.toLowerCase().includes(searchTerm);
+
+        const matchesTier = (tierFilter === 'ALL') || (item.tier === tierFilter);
+        
+        let matchesGov = true;
+        if (govFilter === 'Approved') matchesGov = !item.isProhibited;
+        if (govFilter === 'Prohibited') matchesGov = item.isProhibited;
+
+        return matchesSearch && matchesTier && matchesGov;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        let valA = a[currentSort.column];
+        let valB = b[currentSort.column];
+
+        if (currentSort.column === 'duration') {
+          valA = a.durationMins;
+          valB = b.durationMins;
+        }
+
+        if (valA < valB) return currentSort.asc ? -1 : 1;
+        if (valA > valB) return currentSort.asc ? 1 : -1;
+        return 0;
+      });
+
+      document.getElementById('filteredCountLabel').textContent = `Showing ${filtered.length} of ${monitorData.length} records`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="py-8 text-center text-slate-500 font-mono">
+              <i class="ph ph-warning text-2xl mb-1 block text-amber-400"></i>
+              No telemetry entries match your selected criteria.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-cyber-card/60 transition";
+
+        const isProhibited = item.isProhibited;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-white whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full ${item.status === 'Exhausted' ? 'bg-rose-400' : 'bg-emerald-400'}"></span>
+              ${item.name}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-slate-300 font-mono whitespace-nowrap">${item.tier}</td>
+          <td class="py-3 px-4 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+              ${item.workloadType}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-mono font-bold text-white whitespace-nowrap">${item.durationMins}m</td>
+          <td class="py-3 px-4 font-mono text-amber-300 font-semibold whitespace-nowrap">
+            ~${item.burnRate}% / min
+          </td>
+          <td class="py-3 px-4 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono border ${item.status === 'Exhausted' ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">
+              ${item.status}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-mono whitespace-nowrap ${item.replenishment.includes('hour') ? 'text-emerald-400 font-bold' : 'text-slate-300'}">
+            ${item.replenishment}
+          </td>
+          <td class="py-3 px-4 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${isProhibited ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}">
+              ${isProhibited ? '⛔ NON-COMPLIANT' : '✓ COMPLIANT'}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-300 max-w-xs truncate" title="${item.notes}">
+            ${item.notes}
+          </td>
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="deleteAccount('${item.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition" title="Delete record">
+              <i class="ph-bold ph-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Sort column handler
+    window.sortTable = function(column) {
+      if (currentSort.column === column) {
+        currentSort.asc = !currentSort.asc;
+      } else {
+        currentSort.column = column;
+        currentSort.asc = true;
+      }
+      renderTable();
+    };
+
+    // Delete record handler
+    window.deleteAccount = function(id) {
+      monitorData = monitorData.filter(d => d.id !== id);
+      renderAll();
+      notify("Record removed from active telemetry.");
+    };
+
+    // Quota Simulator Calculation
+    function updateSimulator() {
+      const complexity = parseFloat(document.getElementById('simComplexity').value);
+      const prompt = parseFloat(document.getElementById('simPrompt').value);
+      const depth = parseFloat(document.getElementById('simDepth').value);
+      const model = parseFloat(document.getElementById('simModel').value);
+
+      // Composite multiplier
+      const composite = (complexity * prompt * depth * model).toFixed(2);
+      document.getElementById('compositeMultiplierLabel').textContent = `${composite}× Baseline Overhead`;
+
+      // Baseline durations for average heavy CR work (30m, 60m, 180m)
+      // When overhead increases above baseline (~2.2), duration shrinks
+      const baselineRef = 2.4; 
+      const factor = baselineRef / composite;
+
+      const simFree = Math.max(8, Math.round(30 * factor));
+      const simCompany = Math.max(15, Math.round(60 * factor));
+      const simJio = Math.max(35, Math.round(180 * factor));
+
+      document.getElementById('simResultFree').textContent = `~${simFree}m`;
+      document.getElementById('simResultCompany').textContent = `~${simCompany}m`;
+      document.getElementById('simResultJio').textContent = `~${simJio}m`;
+    }
+
+    // Smooth scroll to simulator
+    window.scrollToSimulator = function() {
+      document.getElementById('simulatorSection').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Modal Control
+    const modal = document.getElementById('sessionModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const durationInput = document.getElementById('modalDuration');
+    const burnPreview = document.getElementById('modalBurnPreview');
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      document.getElementById('modalAccountName').focus();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      document.getElementById('newSessionForm').reset();
+      burnPreview.textContent = '— % / min';
+    }
+
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelModalBtn.addEventListener('click', closeModal);
+
+    durationInput.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (val && val > 0) {
+        burnPreview.textContent = `~${(100 / val).toFixed(2)}% / min`;
+      } else {
+        burnPreview.textContent = '— % / min';
+      }
+    });
+
+    document.getElementById('newSessionForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('modalAccountName').value.trim();
+      const tier = document.getElementById('modalTier').value;
+      const durationMins = parseInt(document.getElementById('modalDuration').value, 10);
+      const workloadType = document.getElementById('modalWorkloadType').value;
+      const status = document.getElementById('modalStatus').value;
+      const timeRange = document.getElementById('modalTimeRange').value.trim();
+      const replenishment = document.getElementById('modalResetTime').value.trim();
+      const notes = document.getElementById('modalNotes').value.trim();
+
+      const isJio = tier.includes('Jio') || name.toLowerCase().includes('jio');
+      const isProhibited = isJio;
+
+      let sessionStart = '';
+      let exhaustionTime = '';
+      if (timeRange.includes('-')) {
+        const parts = timeRange.split('-');
+        sessionStart = parts[0].trim();
+        exhaustionTime = parts[1].trim();
+      } else if (timeRange) {
+        sessionStart = timeRange;
+        exhaustionTime = 'Exhausted';
+      }
+
+      const newEntry = {
+        id: 'acc_' + Date.now(),
+        name,
+        tier,
+        sessionStart,
+        exhaustionTime,
+        durationMins,
+        workloadType,
+        intensity: 'Heavy',
+        burnRate: calculateBurnRate(durationMins),
+        status,
+        replenishment,
+        governance: isProhibited ? 'PROHIBITED (CIO Policy)' : 'Approved (Enterprise)',
+        isProhibited,
+        notes: notes || `${workloadType} session.`
+      };
+
+      monitorData.unshift(newEntry);
+      renderAll();
+      closeModal();
+
+      if (isProhibited) {
+        notify("Warning: Logged seat violates CIO Personal Account Directive", true);
+      } else {
+        notify(`Logged exhaustion record for ${name}`);
+      }
+    });
+
+    // CSV Exporter
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      const headers = [
+        "Account ID / Name", 
+        "Account Tier", 
+        "Workload Focus", 
+        "Duration to Exhaust (mins)", 
+        "Burn Rate (%/min)", 
+        "Status", 
+        "Replenishment Cycle", 
+        "CIO Governance Compliance", 
+        "Notes & Walkthrough Details"
+      ];
+      
+      const rows = monitorData.map(d => [
+        `"${d.name}"`,
+        `"${d.tier}"`,
+        `"${d.workloadType}"`,
+        d.durationMins,
+        `"${d.burnRate}%"`,
+        `"${d.status}"`,
+        `"${d.replenishment}"`,
+        `"${d.governance}"`,
+        `"${(d.notes || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `antigravity_governance_telemetry_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      notify("Exported telemetry audit log to CSV.");
+    });
+
+    // Attach simulator input listeners
+    ['simComplexity', 'simPrompt', 'simDepth', 'simModel'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateSimulator);
+    });
+
+    // Filters and search listeners
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    document.getElementById('tierFilter').addEventListener('change', renderTable);
+    document.getElementById('govFilter').addEventListener('change', renderTable);
+
+    function renderAll() {
+      renderCards();
+      renderTable();
+      updateSimulator();
+    }
+
+    window.onload = function() {
+      renderAll();
+    };
+  </script>
+</body>
+</html>
